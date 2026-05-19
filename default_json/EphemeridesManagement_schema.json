@@ -1,0 +1,185 @@
+{
+  "block_name": "Ephemerides Management",
+  "description": "Downloads Galileo ephemerides (broadcast/precise) from ESA GNSS repositories for satellite positioning",
+  "consumes": [
+    "snapshot_path_e6",
+    "snapshot_path_e1"
+  ],
+  "produces": [
+    "ephemerides_data"
+  ],
+  "artifacts": {},
+  "execution": {},
+  "has_result_callbacks": true,
+  "sections": [
+    {
+      "title": "Ephemerides Source",
+      "description": "Ephemerides data from ESA GNSS Service Centre (gssc.esa.int)",
+      "fields": [
+        {
+          "id": "ephemerides_type",
+          "label": "Ephemerides Type",
+          "type": "string",
+          "component": "dropdown",
+          "width": 12,
+          "default": "broadcast",
+          "path": "ephemerides_type",
+          "options": [
+            {"label": "Broadcast (Real-time, meter-level)", "value": "broadcast"},
+            {"label": "Precise (Post-processed, cm-level)", "value": "precise"}
+          ],
+          "help": "Broadcast ephemerides are available in real-time. Precise ephemerides have higher accuracy but delayed availability."
+        }
+      ]
+    },
+    {
+      "title": "Precise Product Options",
+      "description": "Options for precise ephemerides (only used when Ephemerides Type is 'Precise')",
+      "fields": [
+        {
+          "id": "precise_product_type",
+          "label": "Precise Product Type",
+          "type": "string",
+          "component": "dropdown",
+          "width": 12,
+          "default": "rapid",
+          "path": "precise_product_type",
+          "options": [
+            {"label": "Final (cm-level, ~13-17 day latency)", "value": "final"},
+            {"label": "Rapid (dm-level, ~17-41 hour latency)", "value": "rapid"},
+            {"label": "Ultra-Rapid (dm-level, predictions available)", "value": "ultra"}
+          ],
+          "help": "Final products have highest accuracy but longest delay. Ultra-rapid includes predicted orbits."
+        }
+      ]
+    },
+    {
+      "title": "Time Configuration",
+      "description": "Configure the target time for ephemerides retrieval",
+      "fields": [
+        {
+          "id": "use_current_time",
+          "label": "Use Current Time",
+          "type": "boolean",
+          "component": "checkbox",
+          "width": 4,
+          "default": true,
+          "path": "use_current_time",
+          "help": "Use the current system time to retrieve the most recent ephemerides"
+        },
+        {
+          "id": "target_datetime",
+          "label": "Target Date/Time (UTC)",
+          "type": "string",
+          "component": "input",
+          "width": 8,
+          "default": "",
+          "path": "target_datetime",
+          "props": {
+            "type": "datetime-local",
+            "placeholder": "YYYY-MM-DDTHH:MM:SS"
+          },
+          "help": "Specific UTC datetime to retrieve ephemerides for (only used if 'Use Current Time' is unchecked)"
+        }
+      ]
+    },
+    {
+      "title": "Satellite Filter",
+      "description": "Filter ephemerides by satellite PRN",
+      "fields": [
+        {
+          "id": "prn_filter",
+          "label": "PRN Filter",
+          "type": "string",
+          "component": "input",
+          "width": 12,
+          "default": "",
+          "path": "prn_filter",
+          "props": {
+            "type": "text",
+            "placeholder": "E01, E02, E14 (leave empty for all)"
+          },
+          "help": "Comma-separated list of Galileo PRNs to filter (e.g., E01, E14). Leave empty to include all satellites."
+        }
+      ]
+    },
+    {
+      "title": "Output Options",
+      "description": "Configure output file generation",
+      "fields": [
+        {
+          "id": "save_ephemerides_file",
+          "label": "Save Ephemerides File",
+          "type": "boolean",
+          "component": "checkbox",
+          "width": 6,
+          "default": true,
+          "path": "save_ephemerides_file",
+          "help": "Save the downloaded ephemerides file and parsed JSON to the results directory"
+        }
+      ]
+    }
+  ],
+  "result_fields": [
+    {
+      "id": "target_datetime",
+      "label": "Target Date/Time",
+      "type": "string"
+    },
+    {
+      "id": "gps_week",
+      "label": "GPS Week Number",
+      "type": "integer"
+    },
+    {
+      "id": "day_of_week",
+      "label": "Day of Week",
+      "type": "integer"
+    },
+    {
+      "id": "download_status",
+      "label": "Download Status",
+      "type": "string"
+    },
+    {
+      "id": "ephemerides_file",
+      "label": "Ephemerides File Path",
+      "type": "string"
+    },
+    {
+      "id": "rinex_version",
+      "label": "RINEX Version",
+      "type": "string"
+    },
+    {
+      "id": "ephemerides_count",
+      "label": "Total Ephemeris Records",
+      "type": "integer"
+    },
+    {
+      "id": "unique_satellites",
+      "label": "Unique Satellites",
+      "type": "integer"
+    },
+    {
+      "id": "healthy_records",
+      "label": "Healthy Records",
+      "type": "integer"
+    },
+    {
+      "id": "unhealthy_records",
+      "label": "Unhealthy Records",
+      "type": "integer"
+    },
+    {
+      "id": "json_output",
+      "label": "JSON Output Path",
+      "type": "string"
+    },
+    {
+      "id": "error_message",
+      "label": "Error Message",
+      "type": "string"
+    }
+  ]
+}

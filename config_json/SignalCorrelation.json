@@ -1,0 +1,20 @@
+{
+  "sample_rate_hz": 20000000.0,
+  "start_sample": 160000000,
+  "num_samples": 10000000,
+  "ni_periods_e6": 16,
+  "nc_coherent_e6": 1,
+  "ni_periods_aux": 20,
+  "nc_coherent_aux": 1,
+  "doppler_min_hz": -10000.0,
+  "doppler_max_hz": 10000.0,
+  "doppler_step_hz": 100.0,
+  "correct_code_doppler": true,
+  "fine_doppler_search": true,
+  "fine_doppler_range_hz": 200.0,
+  "pdi_method": "NPDI",
+  "exp_n_coh": 2.0,
+  "save_all_cafs": false,
+  "interpolation_mode": "quadratic-polynomial-3-points",
+  "ppsp_exclusion_chips": 50
+}

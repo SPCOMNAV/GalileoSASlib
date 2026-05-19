@@ -1,0 +1,352 @@
+{
+  "block_name": "Snapshot Recording",
+  "description": "Record IQ snapshots from SDR devices or use manual mode",
+  "consumes": [],
+  "produces": [
+    "snapshot_path_e1",
+    "snapshot_path_e6",
+    "sample_rate_hz",
+    "snapshot_gst_sec"
+  ],
+  "artifacts": {},
+  "execution": {},
+  "has_result_callbacks": true,
+  "sections": [
+    {
+      "title": "Recording Mode",
+      "description": "Mode is configured in ConfigInit (rf_input_from_file). If enabled, snapshot paths from ConfigInit are used.",
+      "fields": [
+        {
+          "id": "mode_info",
+          "label": "Mode Configuration",
+          "type": "string",
+          "component": "readonly",
+          "width": 12,
+          "default": "Manual mode and snapshot paths are configured in ConfigInit block (rf_input_from_file, rf_input_path_e1, rf_input_path_e6)",
+          "path": "mode_info",
+          "help": "This block reads rf_input_from_file from ConfigInit to determine if manual mode is active"
+        }
+      ]
+    },
+    {
+      "title": "BladeRF API Connection",
+      "description": "Configure connection to the remote SDR server (only used when rf_input_from_file=false)",
+      "fields": [
+        {
+          "id": "api_base_url",
+          "label": "API Base URL",
+          "type": "string",
+          "component": "input",
+          "width": 6,
+          "default": "https://158.109.77.12:5173",
+          "path": "api_base_url",
+          "props": {
+            "placeholder": "https://host:port"
+          }
+        },
+        {
+          "id": "api_username",
+          "label": "Username",
+          "type": "string",
+          "component": "input",
+          "width": 3,
+          "default": "",
+          "path": "api_username"
+        },
+        {
+          "id": "api_password",
+          "label": "Password",
+          "type": "string",
+          "component": "input",
+          "width": 3,
+          "default": "",
+          "path": "api_password",
+          "props": {
+            "type": "password"
+          }
+        }
+      ]
+    },
+    {
+      "title": "SDR Parameters",
+      "description": "Configure BladeRF recording parameters",
+      "fields": [
+        {
+          "id": "frequency_e6",
+          "label": "E6 Frequency (Hz)",
+          "type": "int",
+          "component": "input",
+          "width": 6,
+          "default": 1278750000,
+          "path": "frequency_e6",
+          "props": {
+            "type": "number",
+            "min": 70000000,
+            "max": 6000000000
+          },
+          "help": "Center frequency for E6 band (BLADE_1 device)"
+        },
+        {
+          "id": "frequency_e1",
+          "label": "E1 Frequency (Hz)",
+          "type": "int",
+          "component": "input",
+          "width": 6,
+          "default": 1575420000,
+          "path": "frequency_e1",
+          "props": {
+            "type": "number",
+            "min": 70000000,
+            "max": 6000000000
+          },
+          "help": "Center frequency for E1 band (BLADE_2 device)"
+        },
+        {
+          "id": "sample_rate",
+          "label": "Sample Rate (sps)",
+          "type": "int",
+          "component": "input",
+          "width": 4,
+          "default": 20000000,
+          "path": "sample_rate",
+          "props": {
+            "type": "number",
+            "min": 520834,
+            "max": 61440000
+          }
+        },
+        {
+          "id": "bandwidth",
+          "label": "Bandwidth (Hz)",
+          "type": "int",
+          "component": "input",
+          "width": 4,
+          "default": 10000000,
+          "path": "bandwidth",
+          "props": {
+            "type": "number",
+            "min": 200000,
+            "max": 56000000
+          }
+        },
+        {
+          "id": "gain",
+          "label": "Gain (dB)",
+          "type": "int",
+          "component": "input",
+          "width": 4,
+          "default": 60,
+          "path": "gain",
+          "props": {
+            "type": "number",
+            "min": -15,
+            "max": 60
+          }
+        },
+        {
+          "id": "duration_seconds",
+          "label": "Duration (seconds)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 1.0,
+          "path": "duration_seconds",
+          "props": {
+            "type": "number",
+            "min": 0.1,
+            "max": 60,
+            "step": 0.1
+          }
+        },
+        {
+          "id": "gain_mode",
+          "label": "Gain Mode",
+          "type": "string",
+          "component": "dropdown",
+          "width": 4,
+          "default": "Default",
+          "path": "gain_mode",
+          "options": [
+            {"label": "Default", "value": "Default"},
+            {"label": "Manual", "value": "Manual"},
+            {"label": "Fast Attack AGC", "value": "FastAttack_AGC"},
+            {"label": "Slow Attack AGC", "value": "SlowAttack_AGC"},
+            {"label": "Hybrid AGC", "value": "Hybrid_AGC"}
+          ],
+          "help": "Gain control mode for BladeRF devices"
+        },
+        {
+          "id": "bias_tee_blade1",
+          "label": "Bias Tee (BLADE_1 / E6)",
+          "type": "bool",
+          "component": "checkbox",
+          "width": 4,
+          "default": true,
+          "path": "bias_tee_blade1",
+          "help": "Enable bias tee on BLADE_1 (E6 band) device for active antenna"
+        },
+        {
+          "id": "bias_tee_blade2",
+          "label": "Bias Tee (BLADE_2 / E1)",
+          "type": "bool",
+          "component": "checkbox",
+          "width": 4,
+          "default": true,
+          "path": "bias_tee_blade2",
+          "help": "Enable bias tee on BLADE_2 (E1 band) device for active antenna"
+        },
+        {
+          "id": "agc_enabled",
+          "label": "AGC Enabled",
+          "type": "bool",
+          "component": "checkbox",
+          "width": 4,
+          "default": false,
+          "path": "agc_enabled",
+          "help": "Enable automatic gain control"
+        },
+        {
+          "id": "get_tesla_keys",
+          "label": "Get TESLA Keys",
+          "type": "bool",
+          "component": "checkbox",
+          "width": 4,
+          "default": false,
+          "path": "get_tesla_keys",
+          "help": "Also capture TESLA keys during recording"
+        }
+      ]
+    },
+    {
+      "title": "Scheduling",
+      "description": "Recording timing is configured in ConfigInit (record_now, scheduled_time). These are download/polling settings.",
+      "fields": [
+        {
+          "id": "wake_before_minutes",
+          "label": "Wake Before (minutes)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 5.0,
+          "path": "wake_before_minutes",
+          "props": {
+            "type": "number",
+            "min": 1,
+            "max": 60
+          },
+          "help": "How many minutes before recording completes to start polling for download"
+        },
+        {
+          "id": "poll_interval_seconds",
+          "label": "Poll Interval (seconds)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 10.0,
+          "path": "poll_interval_seconds",
+          "props": {
+            "type": "number",
+            "min": 5,
+            "max": 120
+          },
+          "help": "How often to check if recording is ready for download"
+        },
+        {
+          "id": "download_timeout_minutes",
+          "label": "Download Timeout (minutes)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 30.0,
+          "path": "download_timeout_minutes",
+          "props": {
+            "type": "number",
+            "min": 5,
+            "max": 120
+          },
+          "help": "Maximum time to wait for recording to be ready"
+        }
+      ]
+    },
+    {
+      "title": "Snapshot Identification",
+      "description": "Identify and organize snapshots",
+      "fields": [
+        {
+          "id": "snapshot_id",
+          "label": "Snapshot ID",
+          "type": "string",
+          "component": "input",
+          "width": 4,
+          "default": "",
+          "path": "snapshot_id"
+        },
+        {
+          "id": "set_id",
+          "label": "Set ID",
+          "type": "string",
+          "component": "input",
+          "width": 4,
+          "default": "a1",
+          "path": "set_id"
+        },
+        {
+          "id": "info_tag",
+          "label": "Info Tag",
+          "type": "string",
+          "component": "input",
+          "width": 4,
+          "default": "opensky",
+          "path": "info_tag"
+        }
+      ]
+    },
+    {
+      "title": "Output Configuration",
+      "description": "Configure output directory",
+      "fields": [
+        {
+          "id": "output_dir",
+          "label": "Output Directory",
+          "type": "string",
+          "component": "input",
+          "width": 12,
+          "default": "data/datasetION/Snapshots_IQ",
+          "path": "output_dir"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "schedule",
+      "label": "Schedule Recording",
+      "style": "primary",
+      "method": "schedule_recording"
+    },
+    {
+      "id": "download",
+      "label": "Download Recording",
+      "style": "secondary",
+      "method": "download_recording"
+    },
+    {
+      "id": "record_and_download",
+      "label": "Record & Download (blocking)",
+      "style": "secondary",
+      "method": "run_pipeline"
+    }
+  ],
+  "result_display": {
+    "inputs": [
+      {"key": "snapshot_path", "label": "Snapshot Path"},
+      {"key": "manual_mode", "label": "Manual Mode"},
+      {"key": "scheduled_time", "label": "Scheduled Time"}
+    ],
+    "outputs": [
+      {"key": "status", "label": "Status"},
+      {"key": "downloaded_files", "label": "Downloaded Files"},
+      {"key": "metadata.band_token", "label": "Band"}
+    ]
+  }
+}

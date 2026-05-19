@@ -1,0 +1,7 @@
+{
+  "almanac_source": "gsc_europa",
+  "almanac_format": "xml",
+  "use_current_time": false,
+  "target_datetime": "2026-03-19T14:21:00Z",
+  "save_almanac_file": true
+}

@@ -1,0 +1,12 @@
+{
+  "recs_provider": "GSCX",
+  "recs_interface_version": "01",
+  "recs_file_version": "01",
+  "recs_tstart": "078 14:21:00",
+  "recs_duration_sec": 60,
+  "recs_rtba_deciseconds": 100,
+  "recs_svids": "18",
+  "recs_kdi": 0,
+  "recs_rand": 0,
+  "recs_nchip": 4
+}

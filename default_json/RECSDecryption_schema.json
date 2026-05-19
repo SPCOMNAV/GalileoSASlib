@@ -1,0 +1,176 @@
+{
+  "block_name": "RECS Decryption",
+  "description": "Decrypt RECS files using TESLA keys",
+  "consumes": [
+    "parsed_recs_files",
+    "recs_files",
+    "tesla_keys"
+  ],
+  "produces": [
+    "ecs_hex",
+    "ecs_path",
+    "gst_recs_start_s"
+  ],
+  "artifacts": {},
+  "execution": {
+    "parallel_with": ["SnapshotRecording"],
+    "required_when": "globals.svid_encrypted"
+  },
+  "has_result_callbacks": true,
+  "result_store_id": "recs-decrypt-store",
+  "sections": [
+    {
+      "title": "TESLA key selection",
+      "description": "Provide manual overrides or use the automatically exported keys.",
+      "fields": [
+        {
+          "id": "manual_osnma_key",
+          "label": "Manual OSNMA key (hex)",
+          "type": "string",
+          "component": "input",
+          "width": 5,
+          "default": null,
+          "placeholder": "70080AF476F0464BE2B4AD74BA2CC4C8",
+          "optional": true
+        },
+        {
+          "id": "manual_gst_epoch",
+          "label": "Manual GST epoch",
+          "type": "int",
+          "component": "input",
+          "width": 4,
+          "default": null,
+          "props": {"type": "number", "min": 0, "step": 1},
+          "optional": true
+        },
+        {
+          "id": "prefer_manual_key",
+          "label": "Prefer manual key",
+          "type": "bool",
+          "component": "switch",
+          "width": 3,
+          "default": false
+        },
+        {
+          "id": "target_epoch_override",
+          "label": "Target epoch override",
+          "type": "int",
+          "component": "input",
+          "width": 3,
+          "default": null,
+          "props": {"type": "number", "min": 0, "step": 1},
+          "optional": true
+        },
+        {
+          "id": "window_before_sec",
+          "label": "Seconds before",
+          "type": "float",
+          "component": "input",
+          "width": 3,
+          "default": 600.0,
+          "props": {"type": "number", "min": 0, "step": 1}
+        },
+        {
+          "id": "window_after_sec",
+          "label": "Seconds after",
+          "type": "float",
+          "component": "input",
+          "width": 3,
+          "default": 600.0,
+          "props": {"type": "number", "min": 0, "step": 1}
+        },
+        {
+          "id": "use_next_key_if_needed",
+          "label": "Allow next key",
+          "type": "bool",
+          "component": "switch",
+          "width": 3,
+          "default": true
+        }
+      ]
+    },
+    {
+      "title": "Output",
+      "description": "Configure how the decrypted ECS is exported and previewed.",
+      "fields": [
+        {
+          "id": "output_dir",
+          "label": "Output directory",
+          "type": "string",
+          "component": "input",
+          "width": 5,
+          "default": "",
+          "placeholder": "Leave empty to save next to RECS file",
+          "help": "If empty, ECS will be saved in the same directory as the RECS file"
+        },
+        {
+          "id": "output_basename",
+          "label": "Base filename",
+          "type": "string",
+          "component": "input",
+          "width": 4,
+          "default": "ecs_decrypted"
+        },
+        {
+          "id": "save_ecs",
+          "label": "Save ECS to disk",
+          "type": "bool",
+          "component": "switch",
+          "width": 3,
+          "default": true
+        },
+        {
+          "id": "preview_hex_chars",
+          "label": "Preview hex chars",
+          "type": "int",
+          "component": "input",
+          "width": 4,
+          "default": 40,
+          "props": {"type": "number", "min": 8, "step": 2}
+        },
+        {
+          "id": "preview_polar_samples",
+          "label": "Preview polar chips",
+          "type": "int",
+          "component": "input",
+          "width": 4,
+          "default": 32,
+          "props": {"type": "number", "min": 8, "step": 2}
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "save",
+      "label": "Save settings",
+      "button_id": "recs-save-btn",
+      "color": "primary"
+    },
+    {
+      "id": "run",
+      "label": "Run decryption",
+      "button_id": "recs-run-btn",
+      "color": "info"
+    }
+  ],
+  "result_display": {
+    "inputs": [
+      {"key": "error", "label": "Error"},
+      {"key": "error_message", "label": "Error Message"},
+      {"key": "skipped", "label": "Skipped"},
+      {"key": "reason", "label": "Skip Reason"},
+      {"key": "recs_path", "label": "RECS File"},
+      {"key": "target_epoch", "label": "Target Epoch"},
+      {"key": "available_keys", "label": "Available Keys"}
+    ],
+    "outputs": [
+      {"key": "osnma_key_hex", "label": "OSNMA Key (Hex)"},
+      {"key": "tesla_epoch", "label": "TESLA Epoch"},
+      {"key": "aes_key_dec", "label": "AES Key (Dec)"},
+      {"key": "P_dec", "label": "P (Dec)"},
+      {"key": "iv_hex", "label": "IV (Hex)"},
+      {"key": "ecs_hex_preview", "label": "ECS (Hex)", "truncate": 40}
+    ]
+  }
+}

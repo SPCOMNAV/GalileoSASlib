@@ -1,0 +1,18 @@
+{
+  "kappa": 3,
+  "sigma_auth_m": "",
+  "auto_calibrate_offset": false,
+  "receiver_offset_samples": 0,
+  "min_snr_db": 10,
+  "min_ppsp_db": 5,
+  "sigma_hwbrx_m": 0,
+  "sigma_bgd_m": 0,
+  "sigma_iono_e1_m": 3.5,
+  "sigma_mp_e1_m": 3,
+  "sigma_mp_e6_m": 0.6,
+  "sigma_noise_e1_m": 0.4,
+  "sigma_noise_e6_m": 2.5,
+  "generate_plots": true,
+  "save_results": true,
+  "output_directory": "results/authentication"
+}

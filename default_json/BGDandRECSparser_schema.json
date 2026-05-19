@@ -1,0 +1,92 @@
+{
+  "block_name": "BGD and RECS Parser",
+  "description": "Parses aggregated RECS (.bin) files into individual unitary RECS (.RCS) files, splitting the concatenated payload based on NChip (Table 9) and assigning GST timestamps to each RECS using RTBA spacing.",
+  "consumes": [
+    "recs_files"
+  ],
+  "produces": [
+    "parsed_recs_files"
+  ],
+  "artifacts": {},
+  "execution": {
+    "parallel_with": ["SnapshotRecording"],
+    "required_when": "globals.svid_encrypted"
+  },
+  "has_result_callbacks": true,
+  "sections": [
+    {
+      "title": "RECS Files",
+      "description": "Select RECS files to parse (aggregated .bin or unitary .RCS)",
+      "fields": [
+        {
+          "id": "recs_files",
+          "label": "RECS Files",
+          "type": "list",
+          "component": "file_list",
+          "width": 12,
+          "default": [],
+          "path": "recs_files",
+          "props": {
+            "file_extension": ".bin,.RCS",
+            "multiple": true
+          }
+        }
+      ]
+    },
+    {
+      "title": "BGD Files",
+      "description": "Select BGD files to parse",
+      "fields": [
+        {
+          "id": "bgd_files",
+          "label": "BGD Files",
+          "type": "list",
+          "component": "file_list",
+          "width": 12,
+          "default": [],
+          "path": "bgd_files",
+          "props": {
+            "file_extension": ".BGD",
+            "multiple": true
+          }
+        }
+      ]
+    },
+    {
+      "title": "Output Configuration",
+      "description": "Configure output directory for parsed files",
+      "fields": [
+        {
+          "id": "output_directory",
+          "label": "Output Directory",
+          "type": "string",
+          "component": "input",
+          "width": 12,
+          "default": "",
+          "path": "output_directory",
+          "props": {
+            "placeholder": "Leave empty for default (execution results dir)"
+          }
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "parse",
+      "label": "Parse Files",
+      "style": "primary",
+      "method": "run_pipeline"
+    }
+  ],
+  "result_display": {
+    "inputs": [
+      {"key": "output_directory", "label": "Output Directory"}
+    ],
+    "outputs": [
+      {"key": "parsed_recs_files", "label": "Unitary RECS Files Generated"},
+      {"key": "recs", "label": "Aggregated Files Parsed"},
+      {"key": "bgd_parsed_files", "label": "BGD Files"}
+    ]
+  }
+}

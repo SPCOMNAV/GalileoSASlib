@@ -1,0 +1,218 @@
+{
+  "block_name": "TESLA Key Management",
+  "description": "Manage OSNMA TESLA keys: fetch, parse, filter and export. Tesla keys path inherited from ConfigInit.",
+  "consumes": [],
+  "produces": [
+    "tesla_keys"
+  ],
+  "artifacts": {},
+  "execution": {
+    "parallel_with": ["SnapshotRecording"],
+    "required_when": "globals.svid_encrypted"
+  },
+  "has_result_callbacks": true,
+  "sections": [
+    {
+      "title": "Key Source",
+      "description": "Key source mode is controlled from ConfigInit (tesla_file_enabled). When ON: uses local file from tesla_file_path. When OFF: downloads from URL below.",
+      "fields": [
+        {
+          "id": "osnma_url",
+          "label": "OSNMAlib URL (when mode is ONLINE)",
+          "type": "string",
+          "component": "input",
+          "width": 12,
+          "default": "https://osnmalib.eu/septentrio/subframe_json",
+          "path": "osnma_url",
+          "props": {
+            "placeholder": "URL to download TESLA keys from OSNMAlib"
+          },
+          "help": "URL used when ConfigInit.tesla_file_enabled is OFF and SAS online is disabled"
+        }
+      ]
+    },
+    {
+      "title": "SAS Online Server",
+      "description": "Download TESLA keys from SAS server SLOG files",
+      "fields": [
+        {
+          "id": "sas_online_enabled",
+          "label": "Enable SAS Online",
+          "type": "bool",
+          "component": "switch",
+          "width": 4,
+          "default": false,
+          "path": "sas_online_enabled",
+          "help": "Download TESLA keys from SAS server SLOG (overrides other sources)"
+        },
+        {
+          "id": "sas_server_url",
+          "label": "SAS Server URL",
+          "type": "string",
+          "component": "input",
+          "width": 8,
+          "default": "https://217.111.132.9:50567",
+          "path": "sas_server_url",
+          "help": "SAS server base URL",
+          "dependsOn": {
+            "field": "sas_online_enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "sas_provider",
+          "label": "Provider",
+          "type": "string",
+          "component": "input",
+          "width": 3,
+          "default": "GSCX",
+          "path": "sas_provider",
+          "help": "SLOG provider code",
+          "dependsOn": {
+            "field": "sas_online_enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "sas_year",
+          "label": "Year (YY)",
+          "type": "int",
+          "component": "input",
+          "width": 3,
+          "default": 25,
+          "path": "sas_year",
+          "props": {"type": "number", "min": 20, "max": 99},
+          "help": "2-digit year (e.g., 25 for 2025)",
+          "dependsOn": {
+            "field": "sas_online_enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "sas_day_of_year",
+          "label": "Day of Year",
+          "type": "int",
+          "component": "input",
+          "width": 3,
+          "default": 360,
+          "path": "sas_day_of_year",
+          "props": {"type": "number", "min": 1, "max": 366},
+          "help": "Day of year (1-366)",
+          "dependsOn": {
+            "field": "sas_online_enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "sas_timeout",
+          "label": "Timeout (sec)",
+          "type": "int",
+          "component": "input",
+          "width": 3,
+          "default": 30,
+          "path": "sas_timeout",
+          "props": {"type": "number", "min": 5},
+          "help": "Request timeout in seconds",
+          "dependsOn": {
+            "field": "sas_online_enabled",
+            "value": true
+          }
+        }
+      ]
+    },
+    {
+      "title": "Filter Options",
+      "description": "Filter keys by epoch range",
+      "fields": [
+        {
+          "id": "filter_enabled",
+          "label": "Enable Epoch Filter",
+          "type": "bool",
+          "component": "checkbox",
+          "width": 12,
+          "default": false,
+          "path": "filter_enabled"
+        },
+        {
+          "id": "epoch_after",
+          "label": "Epoch After (GST seconds)",
+          "type": "int",
+          "component": "input",
+          "width": 6,
+          "default": null,
+          "path": "epoch_after",
+          "props": {
+            "type": "number"
+          }
+        },
+        {
+          "id": "epoch_before",
+          "label": "Epoch Before (GST seconds)",
+          "type": "int",
+          "component": "input",
+          "width": 6,
+          "default": null,
+          "path": "epoch_before",
+          "props": {
+            "type": "number"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Export Options",
+      "description": "Configure key export format and destination",
+      "fields": [
+        {
+          "id": "export_format",
+          "label": "Export Format",
+          "type": "string",
+          "component": "select",
+          "width": 6,
+          "default": "json",
+          "path": "export_format",
+          "options": ["json", "csv", "xml"]
+        },
+        {
+          "id": "output_directory",
+          "label": "Output Directory",
+          "type": "string",
+          "component": "input",
+          "width": 12,
+          "default": "",
+          "path": "output_directory"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "download_slog",
+      "label": "Download SLOG",
+      "style": "secondary",
+      "method": "download_slog"
+    },
+    {
+      "id": "fetch",
+      "label": "Fetch Keys",
+      "style": "primary",
+      "method": "fetch_keys"
+    },
+    {
+      "id": "export_json",
+      "label": "Export JSON",
+      "style": "secondary",
+      "method": "export_json"
+    },
+    {
+      "id": "export_csv",
+      "label": "Export CSV",
+      "style": "secondary",
+      "method": "export_csv"
+    }
+  ],
+  "result_display": {
+    "type": "table",
+    "columns": ["epoch", "osnma_key"]
+  }
+}

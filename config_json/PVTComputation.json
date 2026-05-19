@@ -1,0 +1,13 @@
+{
+  "pvt_algorithm": "least_squares",
+  "min_satellites": 4,
+  "use_authenticated_only": false,
+  "min_elevation_deg": 5.0,
+  "weight_by_cn0": false,
+  "weight_by_elevation": false,
+  "min_ppsp_db": 3.0,
+  "min_cn0_dbhz": 38.0,
+  "reference_latitude": 41.5007,
+  "reference_longitude": 2.1136,
+  "reference_altitude": 146.0
+}

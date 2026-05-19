@@ -1,0 +1,23 @@
+{
+  "scheduled_time_doy": "078 14:21:12",
+  "auth_duration_sec": 1.0,
+  "auth_periodicity_sec": 30.0,
+  "auxiliary_mode": "E1B",
+  "svid_to_search": "18",
+  "svid_encrypted": "18",
+  "recs_length": 16,
+  "recs_kdi": 0,
+  "rf_input_from_file": true,
+  "tesla_file_enabled": true,
+  "recs_file_enabled": true,
+  "bgd_file_enabled": false,
+  "recs_directory": "executions/SAS_SERVER_DATA/RECS_timing_test/parsed_rcs",
+  "bgd_file_path": "",
+  "tesla_file_path": "executions/SAS_SERVER_DATA/tesla_keys_live.json",
+  "rf_input_path_e1": "executions/SAS_SERVER_DATA/snapshots/0635_20260319_142050Z_41N4996_2E1127_01_bladeRF_12b_20_10_E1_s_60s_opensky.bin",
+  "rf_input_path_e6": "executions/SAS_SERVER_DATA/snapshots/0634_20260319_142050Z_41N4996_2E1127_00_bladeRF_12b_20_10_E6_s_60s_opensky.bin",
+  "gst_start_time_sec": 838650072.0,
+  "save_config_on_run": false,
+  "execution_name": "test_sas_server_data_sat18",
+  "config_output_dir": "pipeline_configs"
+}

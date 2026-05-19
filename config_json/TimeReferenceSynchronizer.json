@@ -1,0 +1,5 @@
+{
+  "selected_ntp_server": "time.google.com",
+  "query_timeout_sec": 5.0,
+  "retry_count": 3
+}

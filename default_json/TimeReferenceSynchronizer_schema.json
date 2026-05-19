@@ -1,0 +1,104 @@
+{
+  "block_name": "Time Reference Synchronizer",
+  "description": "Synchronizes with NTP servers and calculates the time offset between NTP time and local system time",
+  "consumes": [],
+  "produces": [],
+  "artifacts": {},
+  "execution": {},
+  "has_result_callbacks": true,
+  "sections": [
+    {
+      "title": "NTP Server Selection",
+      "description": "Select an NTP server to synchronize time reference",
+      "fields": [
+        {
+          "id": "selected_ntp_server",
+          "label": "NTP Server",
+          "type": "string",
+          "component": "ntp_server_selector",
+          "width": 12,
+          "default": "time.google.com",
+          "path": "selected_ntp_server",
+          "options": [
+            {"label": "Google (time.google.com)", "value": "time.google.com"},
+            {"label": "Cloudflare (time.cloudflare.com)", "value": "time.cloudflare.com"},
+            {"label": "Microsoft (time.windows.com)", "value": "time.windows.com"},
+            {"label": "Apple (time.apple.com)", "value": "time.apple.com"},
+            {"label": "NIST (time.nist.gov)", "value": "time.nist.gov"}
+          ],
+          "help": "Select the NTP server to use for time synchronization. These are reliable public time servers from major providers."
+        }
+      ]
+    },
+    {
+      "title": "Connection Settings",
+      "description": "Configure connection parameters for NTP queries",
+      "fields": [
+        {
+          "id": "query_timeout_sec",
+          "label": "Query Timeout (seconds)",
+          "type": "float",
+          "component": "input",
+          "width": 6,
+          "default": 5.0,
+          "path": "query_timeout_sec",
+          "props": {
+            "type": "number",
+            "step": 0.5,
+            "min": 1,
+            "max": 30
+          },
+          "help": "Maximum time to wait for NTP server response"
+        },
+        {
+          "id": "retry_count",
+          "label": "Retry Count",
+          "type": "integer",
+          "component": "input",
+          "width": 6,
+          "default": 3,
+          "path": "retry_count",
+          "props": {
+            "type": "number",
+            "step": 1,
+            "min": 1,
+            "max": 10
+          },
+          "help": "Number of retry attempts if NTP query fails"
+        }
+      ]
+    }
+  ],
+  "result_fields": [
+    {
+      "id": "ntp_server",
+      "label": "NTP Server",
+      "type": "string"
+    },
+    {
+      "id": "ntp_datetime",
+      "label": "NTP Time (UTC)",
+      "type": "string"
+    },
+    {
+      "id": "local_datetime",
+      "label": "Local Time (UTC)",
+      "type": "string"
+    },
+    {
+      "id": "offset_ms",
+      "label": "Time Offset (ms)",
+      "type": "float"
+    },
+    {
+      "id": "offset_readable",
+      "label": "Time Offset",
+      "type": "string"
+    },
+    {
+      "id": "clock_status",
+      "label": "Clock Status",
+      "type": "string"
+    }
+  ]
+}

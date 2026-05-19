@@ -1,0 +1,7 @@
+{
+  "enabled": true,
+  "satellite_clock_uncertainty_ms": 0.05,
+  "receiver_clock_uncertainty_ms": 0.1,
+  "propagation_uncertainty_ms": 300.0,
+  "notes": "enabled=true is REQUIRED — without it total_uncertainty_ms=0 and SignalCorrelation skips the ACAS assist for E6C (encrypted). 300 ms covers Galileo propagation (~77-100 ms) + RECS-subframe vs actual ECS-boundary offset measured at ~199 ms in test_acquisition."
+}

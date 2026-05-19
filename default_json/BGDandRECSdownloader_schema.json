@@ -1,0 +1,363 @@
+{
+  "block_name": "BGD and RECS Downloader",
+  "description": "Download BGD and RECS data from remote servers or use local files.",
+  "consumes": [
+    "snapshot_path_e6",
+    "snapshot_path_e1",
+    "snapshot_gst_sec"
+  ],
+  "produces": [
+    "recs_files",
+    "bgd_files"
+  ],
+  "artifacts": {},
+  "execution": {
+    "parallel_with": ["SnapshotRecording"],
+    "required_when": "globals.svid_encrypted"
+  },
+  "has_result_callbacks": false,
+  "sections": [
+    {
+      "title": "Local File Configuration",
+      "description": "Status of local file usage (configured in ConfigInit)",
+      "fields": [
+        {
+          "id": "recs_local_status",
+          "label": "RECS Local File",
+          "type": "bool",
+          "component": "switch",
+          "width": 6,
+          "default": true,
+          "path": "recs_file_enabled",
+          "config_source": "ConfigInit",
+          "help": "Using local RECS files (configured in ConfigInit)"
+        },
+        {
+          "id": "bgd_local_status",
+          "label": "BGD Local File",
+          "type": "bool",
+          "component": "switch",
+          "width": 6,
+          "default": true,
+          "path": "bgd_file_enabled",
+          "config_source": "ConfigInit",
+          "help": "Using local BGD files (configured in ConfigInit)"
+        },
+        {
+          "id": "recs_path_display",
+          "label": "RECS File Path",
+          "type": "string",
+          "component": "readonly",
+          "width": 12,
+          "default": "",
+          "path": "recs_directory",
+          "config_source": "ConfigInit",
+          "help": "Path to RECS files (from ConfigInit)",
+          "dependsOn": {
+            "field": "recs_file_enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "bgd_path_display",
+          "label": "BGD File Path",
+          "type": "string",
+          "component": "readonly",
+          "width": 12,
+          "default": "",
+          "path": "bgd_file_path",
+          "config_source": "ConfigInit",
+          "help": "Path to BGD files (from ConfigInit)",
+          "dependsOn": {
+            "field": "bgd_file_enabled",
+            "value": true
+          }
+        }
+      ]
+    },
+    {
+      "title": "SSH Tunnel",
+      "description": "SSH tunnel configuration for secure access to the SAS server",
+      "fields": [
+        {
+          "id": "ssh_enabled",
+          "label": "Enable SSH Tunnel",
+          "type": "bool",
+          "component": "switch",
+          "width": 4,
+          "default": true,
+          "path": "ssh_enabled",
+          "help": "Create SSH tunnel before connecting to SAS server"
+        },
+        {
+          "id": "ssh_host",
+          "label": "SSH Host",
+          "type": "string",
+          "component": "input",
+          "width": 4,
+          "default": "sps1.uab.cat",
+          "path": "ssh_host",
+          "help": "SSH server hostname",
+          "dependsOn": {
+            "field": "ssh_enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "ssh_port",
+          "label": "SSH Port",
+          "type": "int",
+          "component": "input",
+          "width": 2,
+          "default": 22,
+          "props": {"type": "number", "min": 1, "max": 65535},
+          "path": "ssh_port",
+          "help": "SSH port",
+          "dependsOn": {
+            "field": "ssh_enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "ssh_username",
+          "label": "SSH Username",
+          "type": "string",
+          "component": "input",
+          "width": 3,
+          "default": "osarda",
+          "path": "ssh_username",
+          "help": "SSH username",
+          "dependsOn": {
+            "field": "ssh_enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "ssh_password",
+          "label": "SSH Password",
+          "type": "string",
+          "component": "password",
+          "width": 3,
+          "default": "",
+          "path": "ssh_password",
+          "help": "SSH password (stored securely)",
+          "dependsOn": {
+            "field": "ssh_enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "ssh_remote_host",
+          "label": "Remote Host",
+          "type": "string",
+          "component": "input",
+          "width": 4,
+          "default": "217.111.132.9",
+          "path": "ssh_remote_host",
+          "help": "Target server IP (accessible from SSH host)",
+          "dependsOn": {
+            "field": "ssh_enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "ssh_remote_port",
+          "label": "Remote Port",
+          "type": "int",
+          "component": "input",
+          "width": 2,
+          "default": 50567,
+          "props": {"type": "number", "min": 1, "max": 65535},
+          "path": "ssh_remote_port",
+          "help": "Target server port",
+          "dependsOn": {
+            "field": "ssh_enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "ssh_local_port",
+          "label": "Local Port",
+          "type": "int",
+          "component": "input",
+          "width": 2,
+          "default": 50567,
+          "props": {"type": "number", "min": 1024, "max": 65535},
+          "path": "ssh_local_port",
+          "help": "Local port for tunnel (localhost:PORT)",
+          "dependsOn": {
+            "field": "ssh_enabled",
+            "value": true
+          }
+        }
+      ]
+    },
+    {
+      "title": "SAS Online Server",
+      "description": "Server configuration for online RECS download (used when Local File is disabled)",
+      "fields": [
+        {
+          "id": "online_server_url",
+          "label": "Server URL",
+          "type": "string",
+          "component": "input",
+          "width": 8,
+          "default": "https://217.111.132.9:50567",
+          "path": "online_server_url",
+          "help": "SAS server base URL (use localhost:PORT when SSH tunnel enabled)"
+        },
+        {
+          "id": "online_use_cert",
+          "label": "Use Server Certificate",
+          "type": "bool",
+          "component": "switch",
+          "width": 4,
+          "default": false,
+          "path": "online_use_cert",
+          "help": "Use downloaded certificate for SSL verification"
+        },
+        {
+          "id": "online_timeout",
+          "label": "Timeout (sec)",
+          "type": "int",
+          "component": "input",
+          "width": 4,
+          "default": 60,
+          "props": {"type": "number", "min": 10},
+          "path": "online_timeout",
+          "help": "Request timeout in seconds"
+        }
+      ]
+    },
+    {
+      "title": "RECS Request",
+      "description": "Configure the RECS download request parameters.",
+      "fields": [
+        {
+          "id": "recs_provider",
+          "label": "Provider",
+          "type": "string",
+          "component": "input",
+          "width": 4,
+          "default": "GSCX",
+          "path": "recs_provider"
+        },
+        {
+          "id": "recs_interface_version",
+          "label": "Interface Version",
+          "type": "string",
+          "component": "input",
+          "width": 4,
+          "default": "01",
+          "path": "recs_interface_version"
+        },
+        {
+          "id": "recs_file_version",
+          "label": "File Version",
+          "type": "string",
+          "component": "input",
+          "width": 4,
+          "default": "01",
+          "path": "recs_file_version"
+        },
+        {
+          "id": "recs_tstart",
+          "label": "Start Time",
+          "type": "string",
+          "component": "input",
+          "width": 6,
+          "default": "251551107160",
+          "placeholder": "YYDDDHHMMsss (12 digits)",
+          "path": "recs_tstart",
+          "help": "Start time in format: YY=year, DDD=day, HH=hour, MM=min, sss=deciseconds"
+        },
+        {
+          "id": "recs_duration_sec",
+          "label": "Duration (sec)",
+          "type": "int",
+          "component": "input",
+          "width": 3,
+          "default": 120,
+          "props": {"type": "number", "min": 1},
+          "path": "recs_duration_sec",
+          "help": "Total duration in seconds. Server bundles all needed RECS files (1 min each)."
+        },
+        {
+          "id": "recs_rtba_deciseconds",
+          "label": "RTBA (decisec)",
+          "type": "int",
+          "component": "input",
+          "width": 3,
+          "default": 300,
+          "props": {"type": "number", "min": 0},
+          "path": "recs_rtba_deciseconds",
+          "help": "Time Between Authentications in deciseconds (e.g., 300 = 30 sec)"
+        },
+        {
+          "id": "recs_svids",
+          "label": "SVIDs",
+          "type": "string",
+          "component": "input",
+          "width": 6,
+          "default": "14",
+          "placeholder": "14, 18",
+          "path": "recs_svids",
+          "help": "Satellite IDs, comma or plus separated (e.g., '14, 18' or '14+18')"
+        },
+        {
+          "id": "recs_kdi",
+          "label": "KDI",
+          "type": "int",
+          "component": "input",
+          "width": 2,
+          "default": 0,
+          "props": {"type": "number", "min": 0},
+          "path": "recs_kdi",
+          "help": "Key Delay Indicator"
+        },
+        {
+          "id": "recs_rand",
+          "label": "RAND",
+          "type": "int",
+          "component": "input",
+          "width": 2,
+          "default": 0,
+          "props": {"type": "number", "min": 0, "max": 1},
+          "path": "recs_rand",
+          "help": "Randomization flag (0 or 1)"
+        },
+        {
+          "id": "recs_nchip",
+          "label": "NChip",
+          "type": "int",
+          "component": "input",
+          "width": 2,
+          "default": 3,
+          "props": {"type": "number", "min": 1},
+          "path": "recs_nchip",
+          "help": "RECS Sequence duration / Number of chips"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "download_cert",
+      "label": "Download Certificate",
+      "button_id": "downloader-cert-btn",
+      "color": "secondary"
+    },
+    {
+      "id": "save",
+      "label": "Save settings",
+      "button_id": "downloader-save-btn",
+      "color": "primary"
+    },
+    {
+      "id": "run",
+      "label": "Download RECS",
+      "button_id": "downloader-run-btn",
+      "color": "success"
+    }
+  ]
+}

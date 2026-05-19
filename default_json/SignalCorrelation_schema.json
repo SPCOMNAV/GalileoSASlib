@@ -1,0 +1,305 @@
+{
+  "block_name": "Signal Correlation",
+  "description": "Multi-band correlation for Galileo E1 and E6 signals with PVT support",
+  "consumes": [
+    "almanac_visible_satellites",
+    "ecs_hex",
+    "ecs_path",
+    "sample_rate_hz",
+    "snapshot_path_e1",
+    "snapshot_path_e6",
+    "snapshot_gst_sec",
+    "gst_recs_start_s",
+    "total_uncertainty_ms"
+  ],
+  "produces": [
+    "correlation_results"
+  ],
+  "artifacts": {
+    "plot": {"type": "html", "auto_open": true}
+  },
+  "execution": {},
+  "has_result_callbacks": true,
+  "sections": [
+    {
+      "title": "Sample Parameters",
+      "description": "Configure sample rate and window",
+      "fields": [
+        {
+          "id": "sample_rate_hz",
+          "label": "Sample Rate (Hz)",
+          "type": "float",
+          "component": "input",
+          "width": 6,
+          "default": 20000000.0,
+          "path": "sample_rate_hz",
+          "props": {
+            "type": "number",
+            "step": 1000000,
+            "min": 1000000
+          },
+          "help": "Sample rate of IQ recordings in Hz. Disabled when SnapshotRecording is in SDR mode (value comes from SDR config).",
+          "dependsOnBlock": {
+            "block": "SnapshotRecording",
+            "field": "manual_mode",
+            "value": false,
+            "disableWhen": "equals"
+          }
+        },
+        {
+          "id": "start_sample",
+          "label": "Start Sample",
+          "type": "int",
+          "component": "input",
+          "width": 3,
+          "default": 0,
+          "path": "start_sample",
+          "props": {
+            "type": "number",
+            "min": 0
+          }
+        },
+        {
+          "id": "num_samples",
+          "label": "Number of Samples",
+          "type": "int",
+          "component": "input",
+          "width": 3,
+          "default": -1,
+          "path": "num_samples",
+          "props": {
+            "type": "number"
+          },
+          "help": "Use -1 for all samples"
+        },
+        {
+          "id": "ni_periods_e6",
+          "label": "Ni E6 (Integration Periods)",
+          "type": "int",
+          "component": "input",
+          "width": 3,
+          "default": 20,
+          "path": "ni_periods_e6",
+          "props": {
+            "type": "number",
+            "min": 1,
+            "max": 200
+          },
+          "help": "Number of non-coherent integration blocks for E6B/E6C. Total Tint = Nc×Ni×1ms."
+        },
+        {
+          "id": "nc_coherent_e6",
+          "label": "Nc E6 (Coherent Periods)",
+          "type": "int",
+          "component": "input",
+          "width": 3,
+          "default": 1,
+          "path": "nc_coherent_e6",
+          "props": {
+            "type": "number",
+            "min": 1,
+            "max": 100
+          },
+          "help": "Number of code periods summed coherently per block for E6. Nc=1 is safe for data channels (E6B). For pilot channels (E6C) Nc can be larger."
+        },
+        {
+          "id": "ni_periods_aux",
+          "label": "Ni Aux (Integration Periods)",
+          "type": "int",
+          "component": "input",
+          "width": 3,
+          "default": 5,
+          "path": "ni_periods_aux",
+          "props": {
+            "type": "number",
+            "min": 1,
+            "max": 50
+          },
+          "help": "Number of non-coherent integration blocks for E1B (auxiliary). Total Tint = Nc×Ni×4ms."
+        },
+        {
+          "id": "nc_coherent_aux",
+          "label": "Nc Aux (Coherent Periods)",
+          "type": "int",
+          "component": "input",
+          "width": 3,
+          "default": 1,
+          "path": "nc_coherent_aux",
+          "props": {
+            "type": "number",
+            "min": 1,
+            "max": 25
+          },
+          "help": "Number of code periods summed coherently per block for E1B. Nc=1 is safe for data channels. For E1C pilot, Nc can be larger."
+        }
+      ]
+    },
+    {
+      "title": "Doppler Search",
+      "description": "Configure Doppler frequency search range",
+      "fields": [
+        {
+          "id": "doppler_min_hz",
+          "label": "Doppler Min (Hz)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": -6500.0,
+          "path": "doppler_min_hz",
+          "props": {
+            "type": "number"
+          }
+        },
+        {
+          "id": "doppler_max_hz",
+          "label": "Doppler Max (Hz)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 6500.0,
+          "path": "doppler_max_hz",
+          "props": {
+            "type": "number"
+          }
+        },
+        {
+          "id": "doppler_step_hz",
+          "label": "Doppler Step (Hz)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 100.0,
+          "path": "doppler_step_hz",
+          "props": {
+            "type": "number",
+            "min": 1
+          }
+        },
+        {
+          "id": "correct_code_doppler",
+          "label": "Correct Code Doppler",
+          "type": "bool",
+          "component": "checkbox",
+          "width": 6,
+          "default": true,
+          "path": "correct_code_doppler",
+          "help": "Adjust chip rate for Doppler effect: Rcd = Rc * (1 + Fd/Fc)"
+        },
+        {
+          "id": "fine_doppler_search",
+          "label": "Fine Doppler Search",
+          "type": "bool",
+          "component": "checkbox",
+          "width": 6,
+          "default": false,
+          "path": "fine_doppler_search",
+          "help": "After coarse search, refine Doppler with step = 1/(2*Tint)"
+        },
+        {
+          "id": "fine_doppler_range_hz",
+          "label": "Fine Search Range (Hz)",
+          "type": "float",
+          "component": "input",
+          "width": 6,
+          "default": 200.0,
+          "path": "fine_doppler_range_hz",
+          "props": {
+            "type": "number",
+            "min": 10
+          },
+          "help": "Search range ± around coarse Doppler estimate"
+        }
+      ]
+    },
+    {
+      "title": "Integration & CAF",
+      "description": "Post-detection integration and CAF parameters (Terris, v0.2)",
+      "fields": [
+        {
+          "id": "pdi_method",
+          "label": "PDI Method",
+          "type": "string",
+          "component": "select",
+          "width": 4,
+          "default": "NPDI",
+          "path": "pdi_method",
+          "options": ["NPDI", "Coh"],
+          "help": "NPDI: non-coherent post-detection integration (cafPdi += |cafCoh|^exp). Coh: purely coherent accumulation."
+        },
+        {
+          "id": "exp_n_coh",
+          "label": "NPDI Exponent",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 2.0,
+          "path": "exp_n_coh",
+          "props": {
+            "type": "number",
+            "step": 0.5,
+            "min": 1.0,
+            "max": 4.0
+          },
+          "help": "Exponent for NPDI: cafPdi += |cafCoh|^exp. Use 2 for standard power detection."
+        },
+        {
+          "id": "save_all_cafs",
+          "label": "Save All CAFs (debug)",
+          "type": "bool",
+          "component": "checkbox",
+          "width": 4,
+          "default": false,
+          "path": "save_all_cafs",
+          "help": "Store all intermediate per-period CAFs for debug/test. Increases memory usage."
+        }
+      ]
+    },
+    {
+      "title": "Correlation Options",
+      "description": "Advanced correlation parameters",
+      "fields": [
+        {
+          "id": "interpolation_mode",
+          "label": "Peak Interpolation",
+          "type": "string",
+          "component": "select",
+          "width": 6,
+          "default": "quadratic-polynomial-3-points",
+          "path": "interpolation_mode",
+          "options": ["none", "piecewise-linear", "quadratic-polynomial-3-points", "quadratic-polynomial-5-points"]
+        },
+        {
+          "id": "ppsp_exclusion_chips",
+          "label": "PPSP Exclusion Width (chips)",
+          "type": "int",
+          "component": "input",
+          "width": 6,
+          "default": 50,
+          "path": "ppsp_exclusion_chips",
+          "props": {
+            "type": "number",
+            "min": 1
+          }
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "correlate_multiband",
+      "label": "Run Multi-Band Correlation",
+      "style": "primary",
+      "method": "run_pipeline_multiband"
+    },
+    {
+      "id": "correlate_legacy",
+      "label": "Run Legacy Correlation",
+      "style": "secondary",
+      "method": "run_pipeline"
+    }
+  ],
+  "result_display": {
+    "type": "table",
+    "columns": ["prn", "signal", "best_doppler_hz", "peak_power", "ppsp_db", "snr_output_db"]
+  }
+}

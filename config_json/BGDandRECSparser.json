@@ -1,0 +1,8 @@
+{
+  "recs_files": [
+    "executions/SAS_SERVER_DATA/RECS_timing_test/01_260781421000_000060_00100_18_0_0_4_01.bin"
+  ],
+  "bgd_files": [],
+  "recs_directory": "executions/SAS_SERVER_DATA/RECS_timing_test",
+  "output_directory": "executions/SAS_SERVER_DATA/RECS_timing_test/parsed_rcs"
+}

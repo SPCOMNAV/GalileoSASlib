@@ -1,0 +1,276 @@
+{
+  "block_name": "PVT Computation",
+  "description": "Snapshot PVT using Coarse-Time navigation (CT-Doppler + CT-PRange with code-period ambiguity resolution). Ported from snaprx MATLAB reference for Galileo E1B.",
+  "consumes": [
+    "ephemerides_data",
+    "correlation_results",
+    "almanac_visible_satellites"
+  ],
+  "produces": [
+    "pvt_results"
+  ],
+  "artifacts": {},
+  "execution": {},
+  "has_result_callbacks": true,
+  "sections": [
+    {
+      "title": "Snapshot PVT Algorithm",
+      "description": "Coarse-Time navigation: CT-Doppler for initial estimate, then CT-PRange with code-period ambiguity resolution",
+      "fields": [
+        {
+          "id": "pvt_algorithm",
+          "label": "Algorithm",
+          "type": "string",
+          "component": "dropdown",
+          "width": 6,
+          "default": "ct_snapshot",
+          "path": "pvt_algorithm",
+          "options": [
+            {"label": "CT Snapshot (Doppler + PRange)", "value": "ct_snapshot"},
+            {"label": "Standard Least Squares (4-state)", "value": "least_squares"}
+          ],
+          "help": "CT Snapshot uses 5-state CT-Doppler → CT-PRange. Standard LS is a 4-state fallback."
+        },
+        {
+          "id": "min_satellites",
+          "label": "Minimum Satellites",
+          "type": "integer",
+          "component": "input",
+          "width": 6,
+          "default": 4,
+          "path": "min_satellites",
+          "props": {
+            "type": "number",
+            "min": 4,
+            "max": 12
+          },
+          "help": "CT navigation needs ≥5 sats (5-state) or ≥4 with altitude constraint."
+        }
+      ]
+    },
+    {
+      "title": "Measurement Filtering",
+      "description": "Configure which E1B measurements to include in PVT computation",
+      "fields": [
+        {
+          "id": "use_authenticated_only",
+          "label": "Use Only Authenticated Satellites",
+          "type": "boolean",
+          "component": "checkbox",
+          "width": 6,
+          "default": false,
+          "path": "use_authenticated_only",
+          "help": "Only include satellites that passed Galileo SAS authentication"
+        },
+        {
+          "id": "min_elevation_deg",
+          "label": "Minimum Elevation (degrees)",
+          "type": "float",
+          "component": "input",
+          "width": 6,
+          "default": 5.0,
+          "path": "min_elevation_deg",
+          "props": {
+            "type": "number",
+            "min": 0,
+            "max": 90,
+            "step": 1
+          },
+          "help": "Exclude satellites below this elevation angle"
+        }
+      ]
+    },
+    {
+      "title": "CT Thresholds",
+      "description": "Convergence thresholds for the Coarse-Time algorithms (from snaprx defaults)",
+      "fields": [
+        {
+          "id": "doppler_threshold_mps",
+          "label": "Doppler Residual Threshold (m/s)",
+          "type": "float",
+          "component": "input",
+          "width": 6,
+          "default": 8.0,
+          "path": "doppler_threshold_mps",
+          "props": {
+            "type": "number",
+            "min": 1,
+            "max": 50,
+            "step": 1
+          },
+          "help": "CT-Doppler residual below this means convergence (snaprx default: 8)"
+        },
+        {
+          "id": "prange_threshold_m",
+          "label": "PRange RMS Threshold (m)",
+          "type": "float",
+          "component": "input",
+          "width": 6,
+          "default": 300.0,
+          "path": "prange_threshold_m",
+          "props": {
+            "type": "number",
+            "min": 10,
+            "max": 1000,
+            "step": 10
+          },
+          "help": "CT-PRange RMS residual below this means convergence (snaprx default: 300)"
+        }
+      ]
+    },
+    {
+      "title": "Reference Position",
+      "description": "Initial position estimate for coarse-time convergence. In autonomous mode, a grid search replaces the reference position.",
+      "fields": [
+        {
+          "id": "autonomous_mode",
+          "label": "Autonomous Mode (Cold Start)",
+          "type": "boolean",
+          "component": "checkbox",
+          "width": 12,
+          "default": true,
+          "path": "autonomous_mode",
+          "help": "When enabled, PVT uses grid-search CT-Doppler instead of a reference position. No a-priori position needed."
+        },
+        {
+          "id": "reference_latitude",
+          "label": "Reference Latitude (degrees)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 41.5007,
+          "path": "reference_latitude",
+          "props": {
+            "type": "number",
+            "min": -90,
+            "max": 90,
+            "step": 0.0001
+          },
+          "help": "Initial latitude estimate (default: Barcelona)"
+        },
+        {
+          "id": "reference_longitude",
+          "label": "Reference Longitude (degrees)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 2.1136,
+          "path": "reference_longitude",
+          "props": {
+            "type": "number",
+            "min": -180,
+            "max": 180,
+            "step": 0.0001
+          },
+          "help": "Initial longitude estimate (default: Barcelona)"
+        },
+        {
+          "id": "reference_altitude",
+          "label": "Reference Altitude (m)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 0.0,
+          "path": "reference_altitude",
+          "props": {
+            "type": "number",
+            "step": 1
+          },
+          "help": "Initial altitude estimate above WGS84 ellipsoid"
+        }
+      ]
+    }
+  ],
+  "result_fields": [
+    {
+      "id": "pvt_status",
+      "label": "PVT Status",
+      "type": "string"
+    },
+    {
+      "id": "target_datetime",
+      "label": "Target Datetime",
+      "type": "string"
+    },
+    {
+      "id": "satellites_used",
+      "label": "Satellites Used",
+      "type": "integer"
+    },
+    {
+      "id": "prn_list",
+      "label": "PRN List",
+      "type": "string"
+    },
+    {
+      "id": "doppler_residual_mps",
+      "label": "Doppler Residual (m/s)",
+      "type": "float"
+    },
+    {
+      "id": "doppler_tc_sec",
+      "label": "Doppler tc (s)",
+      "type": "float"
+    },
+    {
+      "id": "latitude_deg",
+      "label": "Latitude (°)",
+      "type": "float"
+    },
+    {
+      "id": "longitude_deg",
+      "label": "Longitude (°)",
+      "type": "float"
+    },
+    {
+      "id": "altitude_m",
+      "label": "Altitude (m)",
+      "type": "float"
+    },
+    {
+      "id": "clock_bias_ns",
+      "label": "Clock Bias (ns)",
+      "type": "float"
+    },
+    {
+      "id": "PDOP",
+      "label": "PDOP",
+      "type": "float"
+    },
+    {
+      "id": "rms_residual_m",
+      "label": "RMS Residual (m)",
+      "type": "float"
+    },
+    {
+      "id": "position_error_m",
+      "label": "Position Error vs Ref (m)",
+      "type": "float"
+    },
+    {
+      "id": "google_maps_url",
+      "label": "Google Maps Link",
+      "type": "string"
+    },
+    {
+      "id": "openstreetmap_url",
+      "label": "OpenStreetMap Link",
+      "type": "string"
+    },
+    {
+      "id": "cold_start_grid_init",
+      "label": "Cold Start Grid Init",
+      "type": "string"
+    },
+    {
+      "id": "almanac_visible_satellites",
+      "label": "Almanac Visible Satellites",
+      "type": "string"
+    },
+    {
+      "id": "json_output",
+      "label": "JSON Output Path",
+      "type": "string"
+    }
+  ]
+}

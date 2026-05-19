@@ -1,0 +1,1 @@
+/home/oscar/SPACOMNAV/E6B/modules/structsGalileoSignals.py

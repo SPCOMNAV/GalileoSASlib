@@ -1,0 +1,14 @@
+{
+  "manual_osnma_key": null,
+  "manual_gst_epoch": null,
+  "prefer_manual_key": false,
+  "target_epoch_override": 838650080,
+  "window_before_sec": 60.0,
+  "window_after_sec": 60.0,
+  "use_next_key_if_needed": true,
+  "save_ecs": true,
+  "output_dir": "",
+  "output_basename": "ecs_decrypted_sat18",
+  "preview_hex_chars": 40,
+  "preview_polar_samples": 32
+}

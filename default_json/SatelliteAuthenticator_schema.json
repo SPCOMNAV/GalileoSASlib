@@ -1,0 +1,325 @@
+{
+  "block_name": "Satellite Authenticator",
+  "description": "Verifies signal authentication by comparing E1B and E6C code delays. Based on Galileo SAS paper (IEEE TAES 2023).",
+  "consumes": [
+    "correlation_results"
+  ],
+  "produces": [
+    "authentication_results"
+  ],
+  "artifacts": {
+    "plot": {"type": "html", "auto_open": true}
+  },
+  "execution": {},
+  "has_result_callbacks": true,
+  "sections": [
+    {
+      "title": "Authentication Parameters",
+      "description": "Configure the authentication threshold and confidence level",
+      "fields": [
+        {
+          "id": "kappa",
+          "label": "Confidence Factor (κ)",
+          "type": "float",
+          "component": "select",
+          "width": 6,
+          "default": 3.0,
+          "path": "kappa",
+          "options": [
+            {"label": "κ=2 (95.45%)", "value": 2.0},
+            {"label": "κ=2.5 (98.76%)", "value": 2.5},
+            {"label": "κ=3 (99.73%)", "value": 3.0},
+            {"label": "κ=3.5 (99.95%)", "value": 3.5},
+            {"label": "κ=4 (99.99%)", "value": 4.0}
+          ],
+          "help": "Confidence factor for authentication threshold. Higher κ = more conservative (fewer false positives, more false negatives)"
+        },
+        {
+          "id": "sigma_auth_m",
+          "label": "σ_auth Override (m)",
+          "type": "float",
+          "component": "input",
+          "width": 6,
+          "default": null,
+          "optional": true,
+          "path": "sigma_auth_m",
+          "props": {
+            "type": "number",
+            "step": 0.1,
+            "min": 0,
+            "placeholder": "Leave empty to calculate from components"
+          },
+          "help": "Total authentication sigma in meters. Leave empty to calculate from error model components"
+        },
+        {
+          "id": "auto_calibrate_offset",
+          "label": "Auto-calibrate δ_E1,E6",
+          "type": "boolean",
+          "component": "switch",
+          "width": 6,
+          "default": true,
+          "path": "auto_calibrate_offset",
+          "help": "Automatically estimate the E1-E6 bias (HWB_rx + BGD + iono) from the correlation data. Uses median of raw deltas across all PRN pairs. Disable to use the manual offset below. WARNING: With only 1 PRN pair, auto-calibration cannot distinguish spoofing from receiver bias."
+        },
+        {
+          "id": "receiver_offset_samples",
+          "label": "Manual δ_E1,E6 offset (samples)",
+          "type": "float",
+          "component": "input",
+          "width": 6,
+          "default": 0.0,
+          "path": "receiver_offset_samples",
+          "props": {
+            "type": "number",
+            "step": 0.01,
+            "placeholder": "0.0"
+          },
+          "help": "Total E1-E6 systematic bias (δ_E1,E6 = BGD + iono + HWB_rx) in samples. Only used when auto-calibrate is OFF. Determine via lab calibration or from a previous auto-calibration run. At 20MHz: 1 sample ≈ 15m."
+        }
+      ]
+    },
+    {
+      "title": "Signal Quality Thresholds",
+      "description": "Minimum signal quality required for authentication",
+      "fields": [
+        {
+          "id": "min_snr_db",
+          "label": "Minimum SNR (dB)",
+          "type": "float",
+          "component": "input",
+          "width": 6,
+          "default": 10.0,
+          "path": "min_snr_db",
+          "props": {
+            "type": "number",
+            "step": 1,
+            "min": 0,
+            "max": 50
+          },
+          "help": "Minimum SNR in dB for a signal to be considered valid for authentication"
+        },
+        {
+          "id": "min_ppsp_db",
+          "label": "Minimum PPSP (dB)",
+          "type": "float",
+          "component": "input",
+          "width": 6,
+          "default": 5.0,
+          "path": "min_ppsp_db",
+          "props": {
+            "type": "number",
+            "step": 1,
+            "min": 0,
+            "max": 30
+          },
+          "help": "Minimum Peak-to-Secondary-Peak ratio in dB for authentication"
+        }
+      ]
+    },
+    {
+      "title": "Error Model (Table 1 - Galileo SAS Paper)",
+      "description": "Measurement error contributions used to calculate σ_auth. Default values from IEEE TAES 2023 paper.",
+      "fields": [
+        {
+          "id": "sigma_hwbrx_m",
+          "label": "σ_HWBrx (m)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 0.0,
+          "path": "sigma_hwbrx_m",
+          "props": {
+            "type": "number",
+            "step": 0.1,
+            "min": 0
+          },
+          "help": "Hardware bias receiver E1-E6. Negligible with calibration."
+        },
+        {
+          "id": "sigma_bgd_m",
+          "label": "σ_BGD (m)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 1.5,
+          "path": "sigma_bgd_m",
+          "props": {
+            "type": "number",
+            "step": 0.1,
+            "min": 0
+          },
+          "help": "Broadcast Group Delay E1-E6 uncertainty. ~1.5m without BGD file, ~0m with BGD."
+        },
+        {
+          "id": "sigma_iono_e1_m",
+          "label": "σ_I,E1 (m)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 15.0,
+          "path": "sigma_iono_e1_m",
+          "props": {
+            "type": "number",
+            "step": 0.5,
+            "min": 0
+          },
+          "help": "Ionospheric error E1. ~15m without correction, ~3.5m with NeQuick-G."
+        },
+        {
+          "id": "sigma_mp_e1_m",
+          "label": "σ_MP,E1 (m)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 3.0,
+          "path": "sigma_mp_e1_m",
+          "props": {
+            "type": "number",
+            "step": 0.1,
+            "min": 0
+          },
+          "help": "Multipath error E1. Preliminary estimation ~3m"
+        },
+        {
+          "id": "sigma_mp_e6_m",
+          "label": "σ_MP,E6 (m)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 0.6,
+          "path": "sigma_mp_e6_m",
+          "props": {
+            "type": "number",
+            "step": 0.1,
+            "min": 0
+          },
+          "help": "Multipath error E6. ~0.6m based on E1 ratio with chip rates"
+        },
+        {
+          "id": "sigma_noise_e1_m",
+          "label": "σ_n,E1 (m)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 0.4,
+          "path": "sigma_noise_e1_m",
+          "props": {
+            "type": "number",
+            "step": 0.1,
+            "min": 0
+          },
+          "help": "Thermal noise E1. ~0.4m for continuous DLL tracking (C/N0=37 dBHz). For SNAPSHOT correlation (our case), use ~3.0-5.0m."
+        },
+        {
+          "id": "sigma_noise_e6_m",
+          "label": "σ_n,E6 (m)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 2.5,
+          "path": "sigma_noise_e6_m",
+          "props": {
+            "type": "number",
+            "step": 0.1,
+            "min": 0
+          },
+          "help": "Thermal noise E6 snapshot correlation (no DLL filtering, noisier)"
+        }
+      ]
+    },
+    {
+      "title": "Output Configuration",
+      "description": "Configure where to save authentication results",
+      "fields": [
+        {
+          "id": "save_results",
+          "label": "Save Results",
+          "type": "boolean",
+          "component": "switch",
+          "width": 6,
+          "default": true,
+          "path": "save_results",
+          "help": "Save authentication results to JSON file"
+        },
+        {
+          "id": "output_directory",
+          "label": "Output Directory",
+          "type": "string",
+          "component": "input",
+          "width": 6,
+          "default": "results/authentication",
+          "path": "output_directory",
+          "props": {
+            "placeholder": "Path to save results"
+          },
+          "help": "Directory where authentication results will be saved",
+          "dependsOn": {
+            "field": "save_results",
+            "value": true
+          }
+        }
+      ]
+    }
+  ],
+  "result_display": {
+    "inputs": [
+      {
+        "id": "kappa_used",
+        "label": "Confidence Factor (κ)",
+        "path": "config.kappa"
+      },
+      {
+        "id": "confidence_level",
+        "label": "Confidence Level (%)",
+        "path": "config.confidence_level_percent"
+      },
+      {
+        "id": "gamma_auth_samples",
+        "label": "γ_auth Threshold (samples)",
+        "path": "config.gamma_auth_samples"
+      },
+      {
+        "id": "gamma_auth_m",
+        "label": "γ_auth Threshold (m)",
+        "path": "config.gamma_auth_m"
+      },
+      {
+        "id": "calibration_offset_samples",
+        "label": "Calibration Offset (samples)",
+        "path": "calibration.offset_samples"
+      },
+      {
+        "id": "n_calibration_sats",
+        "label": "Satellites used for calibration",
+        "path": "calibration.n_satellites_used"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "position_authenticated",
+        "label": "Position Authenticated",
+        "path": "position_authenticated"
+      },
+      {
+        "id": "authenticated_count",
+        "label": "PRNs Authenticated",
+        "path": "authenticated_count"
+      },
+      {
+        "id": "failed_count",
+        "label": "PRNs Failed",
+        "path": "failed_count"
+      },
+      {
+        "id": "skipped_count",
+        "label": "PRNs Skipped",
+        "path": "skipped_count"
+      },
+      {
+        "id": "total_prns",
+        "label": "Total PRNs",
+        "path": "total_prns"
+      }
+    ]
+  }
+}

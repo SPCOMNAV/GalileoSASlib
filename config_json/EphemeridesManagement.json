@@ -1,0 +1,9 @@
+{
+  "ephemerides_source": "esa_gssc",
+  "ephemerides_type": "broadcast",
+  "precise_product_type": "rapid",
+  "use_current_time": false,
+  "target_datetime": "2026-03-19T14:21:00Z",
+  "prn_filter": "18",
+  "save_ephemerides_file": true
+}

@@ -1,0 +1,348 @@
+{
+  "block_name": "Configuration Initialization",
+  "description": "Initial configuration parameters for the SAS pipeline - Central configuration for all blocks",
+  "consumes": [],
+  "//produces": "auto-derived from sections[].fields[].id by the Executor",
+  "artifacts": {},
+  "execution": {},
+  "has_result_callbacks": false,
+  "sections": [
+    {
+      "title": "User Parameters",
+      "description": "Main user-configurable parameters for authentication",
+      "fields": [
+        {
+          "id": "scheduled_time_doy",
+          "label": "Scheduled Time (UTC)",
+          "type": "string",
+          "component": "schedule_picker",
+          "width": 6,
+          "default": "0",
+          "path": "scheduled_time_doy",
+          "help": "When to start recording/authentication (UTC). Click to open calendar. Use 'Now' for immediate recording."
+        },
+        {
+          "id": "auth_duration_sec",
+          "label": "Authentication Duration (sec)",
+          "type": "float",
+          "component": "input",
+          "width": 6,
+          "default": 30.0,
+          "path": "auth_duration_sec",
+          "props": {
+            "type": "number",
+            "step": 1,
+            "min": 1
+          },
+          "help": "Total duration of the authentication period in seconds"
+        },
+        {
+          "id": "auth_periodicity_sec",
+          "label": "Authentication Periodicity (sec)",
+          "type": "float",
+          "component": "input",
+          "width": 6,
+          "default": 30.0,
+          "path": "auth_periodicity_sec",
+          "props": {
+            "type": "number",
+            "step": 1,
+            "min": 1
+          },
+          "help": "Time interval between RECS files in seconds"
+        },
+        {
+          "id": "auxiliary_mode",
+          "label": "Auxiliary Signal Band",
+          "type": "string",
+          "component": "select",
+          "width": 6,
+          "default": "off",
+          "path": "auxiliary_mode",
+          "options": [
+            {"label": "Off", "value": "off"},
+            {"label": "E1-B", "value": "E1B"},
+            {"label": "E1-C", "value": "E1C"},
+            {"label": "E6-B", "value": "E6B"}
+          ],
+          "help": "Select auxiliary signal band (E1-B, E1-C, E6-B)"
+        }
+      ]
+    },
+    {
+      "title": "Test Parameters",
+      "description": "Parameters for testing",
+      "fields": [
+        {
+          "id": "svid_to_search",
+          "label": "SVID to Search",
+          "type": "string",
+          "component": "input",
+          "width": 6,
+          "default": "auto",
+          "path": "svid_to_search",
+          "validation": "svid_list_or_auto",
+          "props": {
+            "placeholder": "'auto' or comma-separated SVIDs (e.g., 1,2,3,14)"
+          },
+          "help": "Leave empty or 'auto' to use all visible satellites from the Almanac skyplot. Otherwise, comma-separated SVID list (valid: 1-36)"
+        },
+        {
+          "id": "svid_encrypted",
+          "label": "SVID to Search Encrypted",
+          "type": "string",
+          "component": "input",
+          "width": 6,
+          "default": "14",
+          "path": "svid_encrypted",
+          "validation": "svid_list",
+          "optional": true,
+          "props": {
+            "placeholder": "Comma-separated encrypted SVID list"
+          },
+          "help": "Subset of SVIDs that are encrypted and require RECS decryption (valid: 1-36)"
+        },
+        {
+          "id": "recs_length",
+          "label": "RECS Length",
+          "type": "int",
+          "component": "input",
+          "width": 6,
+          "default": 16,
+          "path": "recs_length",
+          "props": {
+            "type": "number",
+            "step": 1,
+            "min": 1,
+            "max": 16
+          },
+          "help": "Length of RECS data in miliseconds (1 to 16 ms)"
+        },
+        {
+          "id": "recs_kdi",
+          "label": "KDI (Key Delay Indicator)",
+          "type": "int",
+          "component": "select",
+          "width": 6,
+          "default": 1,
+          "path": "recs_kdi",
+          "options": [
+            {"label": "0 - Current Key", "value": 0},
+            {"label": "1 - Next Key", "value": 1}
+          ],
+          "help": "Key Delay Indicator: 0=use current key, 1=use next key"
+        },
+        {
+          "id": "rf_input_from_file",
+          "label": "Snapshot File",
+          "type": "bool",
+          "component": "switch",
+          "width": 6,
+          "default": true,
+          "path": "rf_input_from_file",
+          "help": "Enable to use IQ file, disable for live RF input (recorder)"
+        },
+        {
+          "id": "tesla_file_enabled",
+          "label": "TESLA Key File",
+          "type": "bool",
+          "component": "switch",
+          "width": 6,
+          "default": true,
+          "path": "tesla_file_enabled",
+          "help": "Enable to use TESLA keys from local file, disable to download from internet"
+        },
+        {
+          "id": "recs_file_enabled",
+          "label": "RECS Local File",
+          "type": "bool",
+          "component": "switch",
+          "width": 6,
+          "default": true,
+          "path": "recs_file_enabled",
+          "help": "Enable to use local RECS files, disable to download from server"
+        },
+        {
+          "id": "bgd_file_enabled",
+          "label": "BGD Local File",
+          "type": "bool",
+          "component": "switch",
+          "width": 6,
+          "default": true,
+          "path": "bgd_file_enabled",
+          "help": "Enable to use local BGD files, disable to download from server"
+        }
+      ]
+    },
+    {
+      "title": "Data Paths",
+      "description": "File and directory paths for data sources",
+      "fields": [
+        {
+          "id": "recs_directory",
+          "label": "RECS File Path",
+          "type": "string",
+          "component": "input",
+          "width": 12,
+          "default": "data/datasetION/RECS_Unitary",
+          "path": "recs_directory",
+          "props": {
+            "placeholder": "Path to directory containing RECS files"
+          },
+          "help": "Directory containing RECS files for decryption",
+          "dependsOn": {
+            "field": "recs_file_enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "bgd_file_path",
+          "label": "BGD File Path",
+          "type": "string",
+          "component": "input",
+          "width": 12,
+          "default": "data/datasetION/BGD",
+          "path": "bgd_file_path",
+          "props": {
+            "placeholder": "Path to BGD data file or directory"
+          },
+          "help": "Path to BGD (Broadcast Group Delay) data",
+          "dependsOn": {
+            "field": "bgd_file_enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "tesla_file_path",
+          "label": "TESLA File Path",
+          "type": "string",
+          "component": "input",
+          "width": 12,
+          "default": "data/datasetION/OSNMA_TESLA_Keys/osnma_keys.xml",
+          "path": "tesla_file_path",
+          "props": {
+            "placeholder": "Path to TESLA keys XML or directory"
+          },
+          "help": "Path to OSNMA TESLA key file",
+          "dependsOn": {
+            "field": "tesla_file_enabled",
+            "value": true
+          }
+        },
+        {
+          "id": "rf_input_path_e1",
+          "label": "E1 IQ File Path",
+          "type": "string",
+          "component": "input",
+          "width": 12,
+          "default": "",
+          "path": "rf_input_path_e1",
+          "props": {
+            "placeholder": "Path to E1 band IQ snapshot (.bin)"
+          },
+          "help": "Path to E1 band (1575.42 MHz) IQ recording - required for E1-B or E1-C auxiliary mode",
+          "dependsOn": {
+            "field": "auxiliary_mode",
+            "value": ["E1B", "E1C"]
+          }
+        },
+        {
+          "id": "rf_input_path_e6",
+          "label": "E6 IQ File Path",
+          "type": "string",
+          "component": "input",
+          "width": 12,
+          "default": "",
+          "path": "rf_input_path_e6",
+          "props": {
+            "placeholder": "Path to E6 band IQ snapshot (.bin)"
+          },
+          "help": "Path to E6 band (1278.75 MHz) IQ recording",
+          "dependsOn": {
+            "field": "rf_input_from_file",
+            "value": true
+          }
+        }
+      ]
+    },
+    {
+      "title": "Advanced Options",
+      "description": "Additional processing and execution options",
+      "fields": [
+        {
+          "id": "gst_start_time_sec",
+          "label": "GST Start Time Override (sec)",
+          "type": "float",
+          "component": "input",
+          "width": 6,
+          "default": 0.0,
+          "path": "gst_start_time_sec",
+          "props": {"type": "number", "min": 0, "step": 1},
+          "help": "Manual GST override in seconds since the Galileo epoch. Leave 0 to derive from the snapshot timestamp."
+        },
+        {
+          "id": "save_config_on_run",
+          "label": "Save Config on Run",
+          "type": "bool",
+          "component": "switch",
+          "width": 4,
+          "default": false,
+          "path": "save_config_on_run",
+          "help": "Automatically save configuration to pipeline_configs when pipeline is executed"
+        },
+        {
+          "id": "execution_name",
+          "label": "Execution Name",
+          "type": "string",
+          "component": "input",
+          "width": 8,
+          "default": "",
+          "path": "execution_name",
+          "props": {
+            "placeholder": "Optional name for this execution (e.g., test_sat14)"
+          },
+          "help": "Custom name for the saved configuration file. Leave empty to use timestamp only.",
+          "dependsOn": {
+            "field": "save_config_on_run",
+            "value": true
+          }
+        },
+        {
+          "id": "config_output_dir",
+          "label": "Config Output Directory",
+          "type": "string",
+          "component": "input",
+          "width": 12,
+          "default": "pipeline_configs",
+          "path": "config_output_dir",
+          "props": {
+            "placeholder": "Directory to save pipeline configurations"
+          },
+          "help": "Directory where pipeline configurations will be saved",
+          "dependsOn": {
+            "field": "save_config_on_run",
+            "value": true
+          }
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "save",
+      "label": "Save Configuration",
+      "style": "primary",
+      "method": "save_config"
+    },
+    {
+      "id": "run",
+      "label": "Run & Export",
+      "style": "success",
+      "method": "run_pipeline"
+    }
+  ],
+  "result_display": {
+    "type": "summary",
+    "fields": ["status", "message", "exported_config"]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "manual_mode": true,
+  "osnma_url": "https://osnmalib.eu/septentrio/subframe_json",
+  "filter_enabled": false,
+  "epoch_after": null,
+  "epoch_before": null,
+  "export_format": "json",
+  "output_directory": "",
+  "multi_fetch_enabled": false,
+  "multi_fetch_duration_s": 400,
+  "multi_fetch_interval_s": 28
+}

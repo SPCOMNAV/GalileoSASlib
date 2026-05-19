@@ -1,0 +1,86 @@
+{
+  "block_name": "Uncertainty Module",
+  "description": "Configure uncertainty parameters for position calculation. NOTE: Enabled is controlled by calibration_active in ConfigInit.",
+  "consumes": [],
+  "produces": [
+    "total_uncertainty_ms"
+  ],
+  "artifacts": {},
+  "execution": {},
+  "has_result_callbacks": false,
+  "sections": [
+    {
+      "title": "Uncertainty Configuration",
+      "description": "Configure uncertainty parameters in milliseconds. Module is enabled when calibration_active=true in ConfigInit.",
+      "fields": [
+        {
+          "id": "satellite_clock_uncertainty_ms",
+          "label": "Satellite Clock Uncertainty (ms)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 0.05,
+          "path": "satellite_clock_uncertainty_ms",
+          "props": {
+            "type": "number",
+            "step": 0.01,
+            "min": 0
+          }
+        },
+        {
+          "id": "receiver_clock_uncertainty_ms",
+          "label": "Receiver Clock Uncertainty (ms)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 0.10,
+          "path": "receiver_clock_uncertainty_ms",
+          "props": {
+            "type": "number",
+            "step": 0.01,
+            "min": 0
+          }
+        },
+        {
+          "id": "propagation_uncertainty_ms",
+          "label": "Propagation Uncertainty (ms)",
+          "type": "float",
+          "component": "input",
+          "width": 4,
+          "default": 0.25,
+          "path": "propagation_uncertainty_ms",
+          "props": {
+            "type": "number",
+            "step": 0.01,
+            "min": 0
+          }
+        },
+        {
+          "id": "notes",
+          "label": "Notes",
+          "type": "string",
+          "component": "textarea",
+          "width": 12,
+          "default": "",
+          "path": "notes",
+          "props": {
+            "rows": 3,
+            "placeholder": "Optional notes about uncertainty configuration"
+          }
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "calculate",
+      "label": "Calculate Total Uncertainty",
+      "style": "primary",
+      "method": "run_pipeline"
+    }
+  ],
+  "result_display": {
+    "type": "summary",
+    "fields": ["enabled", "total_uncertainty_ms", "components"]
+  }
+}

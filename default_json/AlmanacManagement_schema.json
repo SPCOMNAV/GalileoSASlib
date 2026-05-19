@@ -1,0 +1,150 @@
+{
+  "block_name": "Almanac Management",
+  "description": "Downloads Galileo almanac data from ESA/GSC sources for satellite constellation information",
+  "consumes": [],
+  "produces": [
+    "almanac_visible_satellites",
+    "user_lat",
+    "user_lon"
+  ],
+  "artifacts": {
+    "skyplot": {"type": "html", "auto_open": false}
+  },
+  "execution": {},
+  "has_result_callbacks": true,
+  "sections": [
+    {
+      "title": "Almanac Source",
+      "description": "Select the source for downloading Galileo almanac data",
+      "fields": [
+        {
+          "id": "almanac_source",
+          "label": "Almanac Source",
+          "type": "string",
+          "component": "dropdown",
+          "width": 12,
+          "default": "gsc_europa",
+          "path": "almanac_source",
+          "options": [
+            {"label": "GSC Europa (Official Galileo Service Centre)", "value": "gsc_europa"},
+            {"label": "ESA GNSS Service Centre", "value": "esa_gssc"}
+          ],
+          "help": "GSC Europa is the official Galileo Service Centre with current almanacs. ESA GSSC provides archive access."
+        },
+        {
+          "id": "almanac_format",
+          "label": "Almanac Format",
+          "type": "string",
+          "component": "dropdown",
+          "width": 6,
+          "default": "yuma",
+          "path": "almanac_format",
+          "options": [
+            {"label": "YUMA (Standard format)", "value": "yuma"},
+            {"label": "XML (Galileo-specific)", "value": "xml"},
+            {"label": "SEM (Standard Exchange Medium)", "value": "sem"}
+          ],
+          "help": "YUMA is the most common format supported by GNSS receivers"
+        }
+      ]
+    },
+    {
+      "title": "Time Configuration",
+      "description": "Configure the target time for almanac retrieval",
+      "fields": [
+        {
+          "id": "use_current_time",
+          "label": "Use Current Time",
+          "type": "boolean",
+          "component": "checkbox",
+          "width": 4,
+          "default": true,
+          "path": "use_current_time",
+          "help": "Use the current system time to retrieve the most recent almanac"
+        },
+        {
+          "id": "target_datetime",
+          "label": "Target Date/Time (UTC)",
+          "type": "string",
+          "component": "input",
+          "width": 8,
+          "default": "",
+          "path": "target_datetime",
+          "props": {
+            "type": "datetime-local",
+            "placeholder": "YYYY-MM-DDTHH:MM:SS"
+          },
+          "help": "Specific UTC datetime to retrieve almanac for (only used if 'Use Current Time' is unchecked)"
+        }
+      ]
+    },
+    {
+      "title": "Output Options",
+      "description": "Configure output file generation",
+      "fields": [
+        {
+          "id": "save_almanac_file",
+          "label": "Save Almanac File",
+          "type": "boolean",
+          "component": "checkbox",
+          "width": 6,
+          "default": true,
+          "path": "save_almanac_file",
+          "help": "Save the downloaded almanac file and parsed JSON to the results directory"
+        }
+      ]
+    }
+  ],
+  "result_fields": [
+    {
+      "id": "target_datetime",
+      "label": "Target Date/Time",
+      "type": "string"
+    },
+    {
+      "id": "gst_week",
+      "label": "GST Week Number",
+      "type": "integer"
+    },
+    {
+      "id": "gst_tow",
+      "label": "GST Time of Week (s)",
+      "type": "float"
+    },
+    {
+      "id": "download_status",
+      "label": "Download Status",
+      "type": "string"
+    },
+    {
+      "id": "almanac_file",
+      "label": "Almanac File Path",
+      "type": "string"
+    },
+    {
+      "id": "satellites_count",
+      "label": "Total Satellites",
+      "type": "integer"
+    },
+    {
+      "id": "healthy_satellites",
+      "label": "Healthy Satellites",
+      "type": "integer"
+    },
+    {
+      "id": "unhealthy_satellites",
+      "label": "Unhealthy Satellites",
+      "type": "integer"
+    },
+    {
+      "id": "json_output",
+      "label": "JSON Output Path",
+      "type": "string"
+    },
+    {
+      "id": "error_message",
+      "label": "Error Message",
+      "type": "string"
+    }
+  ]
+}
