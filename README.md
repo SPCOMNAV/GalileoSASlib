@@ -90,7 +90,7 @@ Open `http://127.0.0.1:8050` in a browser. The interface shows the 13 pipeline b
 3. Press **Start pipeline** and observe progress in the terminal panel.
 4. Inspect block outputs, correlation profiles and the E1B vs E6B comparison plot in the result panels.
 
-Pipeline configurations can be exported as JSON snapshots from the GUI for later reruns. Pre-baked snapshots in `pipeline_configs/` cover the live capture, ION 2024 dataset, and the GSC SAS server reference data.
+Pipeline configurations can be exported as JSON snapshots from the GUI for later reruns. 
 
 Programmatic execution
 ---
